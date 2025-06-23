@@ -1,0 +1,283 @@
+
+
+
+
+Create table index_1 (
+                                         date date, 
+					 datetime date, 
+					 cash_type text,
+					 card varchar,
+					 money decimal,
+					 coffee_name text);
+
+Create table index_2 (
+                                         date date,
+                                         datetime date,
+					 cash_type text,
+					 money decimal,
+					 coffee_name text);				 
+
+
+select * from index_1
+select * from index_2
+
+
+
+Questions: 
+
+
+Easy (Beginner)
+
+
+- List all unique coffee names sold.
+
+Ans: Answer: 
+select distinct coffee_name
+from index_1
+left join index_2 on index_1.date = index_2.date
+
+
+- Count the number of total transactions.
+
+select count (money)
+from index_1
+left join index_2 on index_1.date = index_2.date
+
+
+- How many cash vs card transactions are there?
+
+select count (cash_type)
+from index_1
+left join index_2 on index_1.date = index_2.date
+where cash_type in ('card', 'cash');
+
+// Not Sure if this is correct//
+
+
+- What’s the average transaction amount?
+
+select avg(money) as average_transaction_amount
+left join index_2 on index_1.date = index_2.date
+from index_1;
+
+
+
+- Which coffee was sold the most times?
+
+select coffee_name,  count (coffee_name) as coffee_sold
+from index_1
+left join index_2 on index_1.date = index_2.date
+group by coffee_name
+Order by count (coffee_name) desc
+Limit 1;
+
+
+- List all transactions where the amount is greater than 30.
+
+select money 
+from index_1
+left join index_2 on index_1.date = index_2.date
+where money > 30;
+
+
+
+- Show all sales on a specific day (e.g., 2024-03-01).
+
+
+select coffee_name, money
+from index_1
+left join index_2 on index_1.date = index_2.date
+where date = '2024-03-01';
+
+
+- Get the total money made from cash transactions.
+
+select sum (money) as cash_transactions
+from index_1
+left join index_2 on index_1.date = index_2.date
+where cash_type = 'cash';
+
+
+
+- List all transactions made using a card (from index_1).
+
+select coffee_name, money as card_transactions
+from index_1
+where cash_type = 'card';
+
+
+- Find the earliest and latest transaction date.
+
+
+
+
+🟡 Medium (Intermediate)
+
+
+- Group sales by coffee_name and show their total revenue.
+
+select distinct coffee_name, sum (money) as total_revenue
+left join index_2 on index_1.date = index_2.date
+from index_1
+group by distinct coffee_name; 
+
+
+- How much was spent by each card (ignore nulls)?
+
+select cash_type, money as money_spent_on_each_card
+from index_1
+left join index_2 on index_1.date = index_2.date
+where cash_type = 'card' and card IS NOT NULL;
+
+
+
+- Which day had the highest number of transactions?
+
+select distinct date, count (coffee_name) as number_of_transactions
+from index_1
+left join index_2 on index_1.date = index_2.date
+group by date
+order by count (coffee_name) desc
+Limit 5;
+
+
+
+- Find the top 3 most expensive individual transactions.
+
+
+select distinct (index_1.coffee_name), max (index_1.money) as expensive_transactions
+from index_1
+left join index_2 on index_1.date = index_2.date
+group by (index_1.coffee_name)
+order by expensive_transactions desc
+limit 3
+
+
+- How many different cardholders bought a “Latte”?
+
+select count(index_1.cash_type) as cardholders, index_1.coffee_name 
+from index_1
+left join index_2 on index_1.date = index_2.date 
+where index_1.coffee_name = 'Latte' and index_1.cash_type = 'card'
+group by index_1.coffee_name
+
+
+
+- For each coffee type, get the average transaction amount.
+
+select distinct (index_1.coffee_name), avg(index_1.money) as average_transaction_amount
+from index_1
+left join index_2 on index_1.date = index_2.date 
+group by (index_1.coffee_name)
+
+
+
+- List all transactions where the coffee name contains “Chocolate”.
+
+select index_1.coffee_name, index_1.money as transactions
+from index_1
+left join index_2 on index_1.date = index_2.date 
+where index_1.coffee_name LIKE '%Chocolate%'
+
+
+- Compare total sales between index_1 and index_2.
+
+
+- Which coffee type has the highest total revenue from cash?
+
+Select (index_1.coffee_name), index_1.cash_type, sum (index_1.money) as highest_total_revenue
+from index_1
+left join index_2 on index_1.date = index_2.date 
+where index_1.cash_type = 'cash'
+group by index_1.cash_type, index_1.coffee_name, index_1.money
+order by index_1.money desc;
+
+
+- Create a summary table: coffee type, count sold, total revenue.
+
+select index_1.coffee_name, count (index_1.money) as number_of_coffee_sold, sum (index_1.money) as total_revenue
+from index_1
+left join index_2 on index_1.date = index_2.date
+group by index_1.coffee_name;
+
+
+
+🔴 Hard (Advanced)
+
+
+- Find the cardholder who made the most total purchases and their total spend.
+
+select distinct (index_1.card) as cardholder_with_most_purchases, sum (index_1.money) as total_spend
+from index_1
+left join index_2 on index_1.date = index_2.date
+group by index_1.card, index_1.money
+
+
+- Find the hour of the day with the highest total sales volume.
+
+select 
+EXTRACT(HOUR FROM Timestamp '2024-03-01 17:43:17.436'),
+max (index_1.money)  as  highest_total_sales_volume
+from index_1
+left join index_2 on index_1.date = index_2.date
+
+----Not sure if the above answer is corrrect-----
+
+
+
+- Which coffee had the highest average spend per transaction (min 10 transactions)?
+
+select 
+index_1.coffee_name, 
+avg (index_1.money) as average_spend_per_transaction  
+from index_1
+left join index_2 on index_1.date = index_2.date
+group by index_1.coffee_name
+order by average_spend_per_transaction desc
+
+
+
+- Identify repeat purchases: cardholders who bought the same coffee more than once.
+
+select 
+index_1.card,
+index_1.coffee_name 
+from index_1
+left join index_2 on index_1.date = index_2.date
+where index_1.cash_type = 'card'
+order by index_1.card desc
+
+
+
+- Find all cardholders who only ever bought one type of coffee.
+
+select 
+distinct (index_1.card),
+index_1.coffee_name 
+from index_1
+left join index_2 on index_1.date = index_2.date
+where index_1.cash_type = 'card'
+order by index_1.card desc
+
+
+
+- Create a pivot table: rows = date, columns = coffee_name, values = total money.
+
+
+
+- Calculate the rolling 7-day average revenue.
+
+
+
+- Which cardholders increased their average transaction amount over time?
+
+
+
+- Join both datasets and analyze overall trends across both years.
+
+
+
+
+- Build a cohort analysis: users who bought in March 2024, how many returned in April 2024?
+
+
