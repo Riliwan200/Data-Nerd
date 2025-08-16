@@ -74,12 +74,12 @@ from index_1;
 
 5. Which coffee was sold the most times?
 
-select coffee_name,  count (coffee_name) as coffee_sold
+select coffee_name,  count (*) as coffee_sold
 from index_1
 left join index_2 on index_1.date = index_2.date
 group by coffee_name
-Order by count (coffee_name) desc
-Limit 1;
+Order by count (*) desc
+Having count (*) > 1;
 
 
 6.  List all transactions where the amount is greater than 30.
